@@ -1,0 +1,8 @@
+pandas
+sqlalchemy
+alembic
+psycopg[binary]
+pydantic
+pydantic-settings
+pytest
+pytest-cov

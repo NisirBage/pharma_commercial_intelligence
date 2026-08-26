@@ -17,3 +17,10 @@ node_modules/
 dist/
 build/
 *.egg-info/
+
+# Generated data-quality reports (regenerate via app.etl.run_pipeline / the
+# ad hoc verification run) and any local SQLite/Postgres artifacts.
+backend/data/quality_reports/*.json
+*.db
+*.sqlite3
+.coverage
