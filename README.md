@@ -16,12 +16,13 @@ reasoning (approved: Option A).
 | Milestone | Scope | Status |
 |---|---|---|
 | 1 | Project setup, data acquisition, schema discovery, business problem framing | **Complete** |
-| 2 | Data model & ETL | **Complete** — see the M2 completion report in conversation, and [docs/data-model.md](docs/data-model.md) / [docs/etl.md](docs/etl.md) / [docs/data-quality-decisions.md](docs/data-quality-decisions.md) |
-| 3 | Analytics & forecasting | Not started |
-| 4 | Optimization | Not started |
-| 5 | Backend API | Not started |
-| 6 | Dashboard | Not started |
-| 7 | Testing & CI/CD | Not started |
+| 2 | Data model & ETL | **Complete** — see [docs/data-model.md](docs/data-model.md) / [docs/etl.md](docs/etl.md) / [docs/data-quality-decisions.md](docs/data-quality-decisions.md) |
+| 3 | Demand intelligence & exploratory analytics | **Complete** — see [docs/analytics-methodology.md](docs/analytics-methodology.md) / [docs/business-insights.md](docs/business-insights.md) |
+| 4 | Forecasting | Not started |
+| 5 | Optimization | Not started |
+| 6 | Backend API | Not started |
+| 7 | Dashboard | Not started |
+| 8 | Testing & CI/CD hardening | Not started |
 
 ## Dataset
 
@@ -44,6 +45,7 @@ scripts/                 Standalone data acquisition / investigation scripts
 backend/app/core/        Configuration (env-driven, no hard-coded paths)
 backend/app/models/      SQLAlchemy ORM models (dims, staging, canonical fact, ETL metadata)
 backend/app/etl/         Extract / validate / transform / load / quality-report / pipeline runner
+backend/app/analytics/   KPIs, trends, seasonality, ATC-class analysis, volatility, anomalies, reconciliation
 backend/app/db/migrations/  Alembic migrations
 backend/tests/           pytest — unit (pure logic) + integration (SQLite-backed load tests)
 ```

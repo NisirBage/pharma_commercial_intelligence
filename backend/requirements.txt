@@ -1,4 +1,6 @@
 pandas
+scipy
+statsmodels
 sqlalchemy
 alembic
 psycopg[binary]

@@ -200,6 +200,11 @@ def _check_cross_grain_reconciliation(datasets: dict[str, RawDataset]) -> list[C
     return results
 
 
+# Public alias — reused by app.analytics.reconciliation (M3) as an ongoing
+# analytical quality-control check, not just a one-time ETL validation step.
+check_cross_grain_reconciliation = _check_cross_grain_reconciliation
+
+
 def validate_all(datasets: dict[str, RawDataset]) -> list[CheckResult]:
     results: list[CheckResult] = []
     for ds in datasets.values():
