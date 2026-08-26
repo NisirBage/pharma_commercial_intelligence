@@ -18,7 +18,7 @@ reasoning (approved: Option A).
 | 1 | Project setup, data acquisition, schema discovery, business problem framing | **Complete** |
 | 2 | Data model & ETL | **Complete** — see [docs/data-model.md](docs/data-model.md) / [docs/etl.md](docs/etl.md) / [docs/data-quality-decisions.md](docs/data-quality-decisions.md) |
 | 3 | Demand intelligence & exploratory analytics | **Complete** — see [docs/analytics-methodology.md](docs/analytics-methodology.md) / [docs/business-insights.md](docs/business-insights.md) |
-| 4 | Forecasting | Not started |
+| 4 | Demand forecasting | **Complete** — see [docs/forecasting-methodology.md](docs/forecasting-methodology.md) / [docs/model-selection.md](docs/model-selection.md) / [docs/forecasting-leakage-audit.md](docs/forecasting-leakage-audit.md) / [docs/forecasting-insights.md](docs/forecasting-insights.md) |
 | 5 | Optimization | Not started |
 | 6 | Backend API | Not started |
 | 7 | Dashboard | Not started |
@@ -46,11 +46,12 @@ backend/app/core/        Configuration (env-driven, no hard-coded paths)
 backend/app/models/      SQLAlchemy ORM models (dims, staging, canonical fact, ETL metadata)
 backend/app/etl/         Extract / validate / transform / load / quality-report / pipeline runner
 backend/app/analytics/   KPIs, trends, seasonality, ATC-class analysis, volatility, anomalies, reconciliation
+backend/app/forecasting/ Datasets, features, baselines, ETS/ML models, backtesting, metrics, selection, diagnostics, predictions, model registry
 backend/app/db/migrations/  Alembic migrations
 backend/tests/           pytest — unit (pure logic) + integration (SQLite-backed load tests)
 ```
 
-Frontend and API scaffolding land in Milestone 5+.
+Frontend and API scaffolding land in Milestone 6+.
 
 ## Reproducing the data + pipeline locally
 
@@ -68,6 +69,7 @@ cd backend
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-pytest                                       # 24 tests, all against SQLite (see docs/etl.md)
+pytest                                       # 144 tests (see docs/etl.md, docs/forecasting-methodology.md)
 # python -m app.etl.run_pipeline             # needs a reachable Postgres — see app/core/config.py
+python scripts/run_m4_backtest.py            # reproduces every forecasting number in docs/
 ```

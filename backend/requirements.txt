@@ -1,6 +1,7 @@
 pandas
 scipy
 statsmodels
+scikit-learn
 sqlalchemy
 alembic
 psycopg[binary]

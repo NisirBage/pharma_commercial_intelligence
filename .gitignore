@@ -21,6 +21,7 @@ build/
 # Generated data-quality reports (regenerate via app.etl.run_pipeline / the
 # ad hoc verification run) and any local SQLite/Postgres artifacts.
 backend/data/quality_reports/*.json
+backend/data/model_registry/*.json
 *.db
 *.sqlite3
 .coverage
