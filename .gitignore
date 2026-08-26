@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Raw data pulled from Kaggle — not committed (license/size); scripts/download_data.py re-fetches it.
+data/raw/
+data/interim/
+
+# kagglehub's own cache location, in case it resolves inside the repo on this machine
+kagglehub_cache/
+
+.env
+node_modules/
+dist/
+build/
+*.egg-info/
