@@ -1,0 +1,87 @@
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.textGroup,
+.tableGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.textLine {
+  height: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.metricLabel {
+  height: 12px;
+  width: 40%;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.metricValue {
+  height: 28px;
+  width: 65%;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.cardHeader {
+  height: 16px;
+  width: 50%;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.tableRow {
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.chart {
+  height: 280px;
+  width: 100%;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .textLine,
+  .metricLabel,
+  .metricValue,
+  .cardHeader,
+  .tableRow,
+  .chart {
+    animation: none;
+  }
+}

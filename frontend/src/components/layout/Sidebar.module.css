@@ -1,0 +1,107 @@
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 20, 27, 0.4);
+  z-index: 30;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  border-right: 1px solid var(--color-border-subtle);
+  background: var(--color-surface);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  height: var(--topbar-height);
+  padding: 0 var(--space-md);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.brand {
+  font-size: var(--font-body-small-size);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.25;
+}
+
+.closeButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  padding: var(--space-xs);
+  cursor: pointer;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-sm);
+  overflow-y: auto;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-sm);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-small-size);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.link:hover {
+  background: var(--color-surface-muted);
+  color: var(--color-text-primary);
+}
+
+.link.active {
+  background: var(--color-primary-muted);
+  color: var(--color-primary);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+@media (max-width: 1023px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 40;
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-md);
+    transition: transform var(--transition-fast);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .closeButton {
+    display: inline-flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
+}

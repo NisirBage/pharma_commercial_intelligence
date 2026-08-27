@@ -1,0 +1,76 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-body-small-size);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.tooltipTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.tooltipTrigger:hover {
+  color: var(--color-text-secondary);
+}
+
+.valueRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+}
+
+.value {
+  font-size: var(--font-metric-size);
+  line-height: var(--font-metric-line);
+  font-weight: var(--font-metric-weight);
+  color: var(--color-text-primary);
+}
+
+.unit {
+  font-size: var(--font-body-small-size);
+  color: var(--color-text-muted);
+}
+
+.trend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+  font-size: var(--font-body-small-size);
+  font-weight: 500;
+}
+
+.trend.up {
+  color: var(--color-success);
+}
+
+.trend.down {
+  color: var(--color-danger);
+}
+
+.trend.flat {
+  color: var(--color-text-muted);
+}
+
+.helperText {
+  margin-top: var(--space-xs);
+  font-size: var(--font-caption-size);
+  color: var(--color-text-muted);
+}

@@ -1,0 +1,39 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.label {
+  font-size: var(--font-body-small-size);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.select {
+  height: 36px;
+  padding: 0 var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-body-size);
+}
+
+.select:hover {
+  border-color: var(--color-border-strong);
+}
+
+.hasError {
+  border-color: var(--color-danger);
+}
+
+.helperText {
+  font-size: var(--font-caption-size);
+  color: var(--color-text-muted);
+}
+
+.errorText {
+  font-size: var(--font-caption-size);
+  color: var(--color-danger);
+}

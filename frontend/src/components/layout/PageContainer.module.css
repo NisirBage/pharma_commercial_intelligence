@@ -1,0 +1,15 @@
+.container {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-lg) var(--space-2xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+@media (max-width: 767px) {
+  .container {
+    padding: var(--space-md) var(--space-md) var(--space-xl);
+    gap: var(--space-md);
+  }
+}

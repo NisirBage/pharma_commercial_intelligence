@@ -1,6 +1,11 @@
 @import "./tokens.css";
 
-* {
+/* ---------------------------------------------------------------
+ * Reset
+ * ------------------------------------------------------------- */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -15,16 +20,129 @@ body {
   background: var(--color-bg);
   color: var(--color-text-primary);
   font-family: var(--font-family);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: var(--font-body-size);
+  line-height: var(--font-body-line);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* ---------------------------------------------------------------
+ * Typography defaults
+ * ------------------------------------------------------------- */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: 600;
+}
+
+p {
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------
+ * Links
+ * ------------------------------------------------------------- */
 a {
-  color: var(--color-info);
+  color: var(--color-primary);
+  text-decoration: none;
 }
 
+a:hover {
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------
+ * Focus — visible, consistent, never suppressed
+ * ------------------------------------------------------------- */
 :focus-visible {
-  outline: 2px solid var(--color-info);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ---------------------------------------------------------------
+ * Forms — light normalization; components still own their own
+ * detailed styling via CSS modules
+ * ------------------------------------------------------------- */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------
+ * Utility: visually-hidden but available to assistive tech
+ * ------------------------------------------------------------- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------
+ * Skip link — visible only on focus, first tab stop
+ * ------------------------------------------------------------- */
+.skip-link {
+  position: absolute;
+  left: var(--space-md);
+  top: -48px;
+  z-index: 100;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+  top: var(--space-md);
+}
+
+/* ---------------------------------------------------------------
+ * Motion preference
+ * ------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------
+ * Prevent accidental horizontal page overflow (individual wide
+ * content — tables, charts — must scroll within its own container,
+ * never the page body; see docs/frontend-design-system.md)
+ * ------------------------------------------------------------- */
+body {
+  overflow-x: hidden;
 }

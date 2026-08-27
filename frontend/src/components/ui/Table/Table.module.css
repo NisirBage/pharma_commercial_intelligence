@@ -1,0 +1,74 @@
+.scrollContainer {
+  overflow-x: auto;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-table-body-size);
+  line-height: var(--font-table-body-line);
+}
+
+.table thead {
+  background: var(--color-surface-muted);
+}
+
+.stickyHeader th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.table th {
+  text-align: left;
+  font-size: var(--font-table-header-size);
+  line-height: var(--font-table-header-line);
+  font-weight: var(--font-table-header-weight);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+}
+
+.table.compact th,
+.table.compact td {
+  padding: 6px var(--space-sm);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.alignEnd {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.interactiveRow {
+  cursor: pointer;
+}
+
+.interactiveRow:hover {
+  background: var(--color-surface-muted);
+}
+
+.interactiveRow:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.emptyCell {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: var(--space-xl) var(--space-md);
+}
