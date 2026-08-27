@@ -103,7 +103,7 @@ function SignalList({ classes }: { classes: AtcPerformance[] }) {
           <p className={styles.signalDetail}>
             Coefficient of variation {formatCV(mostVolatile.volatility_cv)} — the highest among observed ATC classes.
           </p>
-          <Link to={`/demand/atc/${mostVolatile.atc_class}`} className={styles.signalLink}>
+          <Link to="/demand?tab=atc" className={styles.signalLink}>
             Investigate {mostVolatile.atc_class} →
           </Link>
         </Card>

@@ -100,6 +100,15 @@
 }
 
 /* ---------------------------------------------------------------
+ * Forecast / Supply Planning / Recommendations previews (M7.9)
+ * ------------------------------------------------------------- */
+.previewGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
+}
+
+/* ---------------------------------------------------------------
  * Data quality
  * ------------------------------------------------------------- */
 .dataQualityBody {

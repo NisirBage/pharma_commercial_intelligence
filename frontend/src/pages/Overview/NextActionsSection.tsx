@@ -3,13 +3,14 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card } from "../../components/ui/Card/Card";
 import { SectionHeader } from "../../components/ui/SectionHeader/SectionHeader";
-import type { AtcPerformanceResponse, DataQualityResponse, KpiSummary } from "../../types/api";
+import type { AtcPerformanceResponse, DataQualityResponse, KpiSummary, RecommendationsResponse } from "../../types/api";
 import styles from "./Overview.module.css";
 
 export interface NextActionsSectionProps {
   kpiQuery: UseQueryResult<KpiSummary, unknown>;
   atcQuery: UseQueryResult<AtcPerformanceResponse, unknown>;
   dataQualityQuery: UseQueryResult<DataQualityResponse, unknown>;
+  recommendationsQuery: UseQueryResult<RecommendationsResponse, unknown>;
 }
 
 interface ActionItem {
@@ -24,7 +25,7 @@ interface ActionItem {
  * standing link to another application section. Nothing here asserts a
  * recommendation as fact; each label names the evidence, the linked
  * page is where the stakeholder investigates it. */
-export function NextActionsSection({ kpiQuery, atcQuery, dataQualityQuery }: NextActionsSectionProps) {
+export function NextActionsSection({ kpiQuery, atcQuery, dataQualityQuery, recommendationsQuery }: NextActionsSectionProps) {
   const actions: ActionItem[] = [];
 
   const dominant = kpiQuery.data?.dominant_atc_class;
@@ -32,7 +33,7 @@ export function NextActionsSection({ kpiQuery, atcQuery, dataQualityQuery }: Nex
     actions.push({
       key: "dominant",
       label: `Investigate ${dominant} exposure — the dominant ATC class`,
-      to: `/demand/atc/${dominant}`,
+      to: "/demand?tab=atc",
     });
   }
 
@@ -60,6 +61,15 @@ export function NextActionsSection({ kpiQuery, atcQuery, dataQualityQuery }: Nex
       key: "data-quality",
       label: "Review the data-quality reconciliation warning",
       to: "/data-quality",
+    });
+  }
+
+  const lowConfidenceCount = (recommendationsQuery.data?.recommendations ?? []).filter((r) => r.confidence === "low").length;
+  if (lowConfidenceCount > 0) {
+    actions.push({
+      key: "low-confidence",
+      label: `Review ${lowConfidenceCount} low-confidence recommendation${lowConfidenceCount === 1 ? "" : "s"}`,
+      to: "/recommendations",
     });
   }
 

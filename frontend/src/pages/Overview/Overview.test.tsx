@@ -30,7 +30,11 @@ describe("OverviewPage", () => {
     renderWithProviders(<OverviewPage />);
     expect(await screen.findByText("73.1%")).toBeInTheDocument(); // concentration_ratio_top3_pct
     expect(screen.getByText("2909.9")).toBeInTheDocument(); // hhi
-    const table = screen.getByRole("table");
+    // Scoped by accessible name (the Table component's own caption) —
+    // the page now has more than one <table> (the Supply Planning
+    // preview added its own scenario table in M7.9), so an unscoped
+    // getByRole("table") is ambiguous.
+    const table = screen.getByRole("table", { name: /Ranked ATC classes/ });
     expect(within(table).getByText("N02BE")).toBeInTheDocument();
     expect(within(table).getAllByText("49.4%").length).toBeGreaterThan(0); // share and cumulative share both 49.4% for the top row
   });
@@ -164,8 +168,12 @@ describe("OverviewPage", () => {
 
   it("links to Demand Intelligence to investigate the dominant ATC class", async () => {
     renderWithProviders(<OverviewPage />);
+    // /demand/atc/:atcClass is an orphaned M7.2 scaffold that was never
+    // implemented (M7.5 shipped a shared ?tab=atc view instead) — this
+    // link must point at the real Demand Intelligence tab, not the dead
+    // placeholder route.
     const link = await screen.findByRole("link", { name: /Investigate N02BE exposure/ });
-    expect(link).toHaveAttribute("href", "/demand/atc/N02BE");
+    expect(link).toHaveAttribute("href", "/demand?tab=atc");
   });
 
   it("links to the full Data Quality report", async () => {
@@ -190,5 +198,209 @@ describe("OverviewPage", () => {
     // a constant baked into the component.
     expect(screen.queryByText("127,596")).not.toBeInTheDocument();
     await waitFor(() => expect(screen.getByText("127,596")).toBeInTheDocument());
+  });
+});
+
+describe("OverviewPage — Forecast preview (M7.9)", () => {
+  it("renders the aggregate forecast's next-day value, WAPE, and model from the API", async () => {
+    renderWithProviders(<OverviewPage />);
+    expect(await screen.findByText("64.7")).toBeInTheDocument(); // forecast[0].prediction
+    expect(screen.getByText("16.3%")).toBeInTheDocument(); // metrics.wape, 1 decimal
+    expect(screen.getByText("ets")).toBeInTheDocument(); // model
+    expect(screen.getByText(/Interval 35\.0–94\.4/)).toBeInTheDocument(); // lower/upper
+  });
+
+  it("links to the Forecasting page", async () => {
+    renderWithProviders(<OverviewPage />);
+    expect(await screen.findByRole("link", { name: "View forecasts →" })).toHaveAttribute("href", "/forecast");
+  });
+
+  it("shows an error state for a failed forecast fetch without blanking unrelated sections", async () => {
+    server.use(
+      http.get(`${API_BASE_URL}/api/v1/forecast/aggregate`, () =>
+        HttpResponse.json({ error: { code: "internal_error", message: "Service unavailable.", details: [] } }, { status: 503 }),
+      ),
+    );
+    renderWithProviders(<OverviewPage />);
+    expect(await screen.findByText("Couldn't load the forecast")).toBeInTheDocument();
+    // Concentration (a different endpoint) still renders.
+    expect(await screen.findByText("73.1%")).toBeInTheDocument();
+  });
+
+  it("shows an empty state when the API returns no forecast points", async () => {
+    server.use(
+      http.get(`${API_BASE_URL}/api/v1/forecast/aggregate`, () =>
+        HttpResponse.json(
+          envelope({ atc_class: "ALL", horizon_days: 14, model: "ets", uncertainty_method: "ets_native_prediction_interval", forecast: [], metrics: { mae: null, rmse: null, wape: null, mase: null } }),
+        ),
+      ),
+    );
+    renderWithProviders(<OverviewPage />);
+    expect(await screen.findByText("No forecast available")).toBeInTheDocument();
+  });
+});
+
+describe("OverviewPage — Supply Planning preview (M7.9)", () => {
+  it("renders real scenario definitions from the API — never a fabricated allocation/improvement figure", async () => {
+    renderWithProviders(<OverviewPage />);
+    expect(await screen.findByText("Balanced")).toBeInTheDocument();
+    expect(screen.getByText("Conservative")).toBeInTheDocument();
+    expect(screen.getByText("Lean")).toBeInTheDocument();
+    expect(screen.getByText("95%")).toBeInTheDocument(); // balanced service_level_target: 0.95
+    // The section is explicit that these are definitions, not a result —
+    // it names "improvement"/"capacity budget" only to say those figures
+    // don't exist here, so the right check is that this exact disclaimer
+    // renders, not a blanket "the word never appears" check (which would
+    // fail against the section's own honest copy).
+    expect(
+      screen.getByText(/only exist after running a scenario on the Supply Planning page/),
+    ).toBeInTheDocument();
+  });
+
+  it("links to the Supply Planning page", async () => {
+    renderWithProviders(<OverviewPage />);
+    expect(await screen.findByRole("link", { name: "Open Supply Planning →" })).toHaveAttribute("href", "/planning");
+  });
+
+  it("shows an error state for a failed scenarios fetch without blanking unrelated sections", async () => {
+    server.use(
+      http.get(`${API_BASE_URL}/api/v1/optimization/scenarios`, () =>
+        HttpResponse.json({ error: { code: "internal_error", message: "Service unavailable.", details: [] } }, { status: 503 }),
+      ),
+    );
+    renderWithProviders(<OverviewPage />);
+    expect(await screen.findByText("Couldn't load planning scenarios")).toBeInTheDocument();
+    expect(await screen.findByText("73.1%")).toBeInTheDocument();
+  });
+
+  it("shows an empty state when the API returns no scenarios", async () => {
+    server.use(
+      http.get(`${API_BASE_URL}/api/v1/optimization/scenarios`, () => HttpResponse.json(envelope({ scenarios: [] }))),
+    );
+    renderWithProviders(<OverviewPage />);
+    expect(await screen.findByText("No planning scenarios available")).toBeInTheDocument();
+  });
+});
+
+describe("OverviewPage — Recommendations preview (M7.9)", () => {
+  it("renders the total count, confidence tally, and a featured recommendation from the API", async () => {
+    renderWithProviders(<OverviewPage />);
+    expect(await screen.findByText("Treat N02BE as high planning exposure.")).toBeInTheDocument();
+    expect(screen.getByText("Medium confidence")).toBeInTheDocument();
+    expect(screen.getByText("Total Recommendations")).toBeInTheDocument();
+    // Fixture has exactly 1 recommendation, "medium" confidence — the
+    // total and low-confidence tallies must reflect that, not a guess.
+    const totalCard = screen.getByText("Total Recommendations").closest("div");
+    expect(totalCard?.parentElement).toHaveTextContent("1");
+  });
+
+  it("links to the Recommendations page", async () => {
+    renderWithProviders(<OverviewPage />);
+    expect(await screen.findByRole("link", { name: "View all recommendations →" })).toHaveAttribute(
+      "href",
+      "/recommendations",
+    );
+  });
+
+  it("shows an error state for a failed recommendations fetch without blanking unrelated sections", async () => {
+    server.use(
+      http.get(`${API_BASE_URL}/api/v1/recommendations`, () =>
+        HttpResponse.json({ error: { code: "internal_error", message: "Service unavailable.", details: [] } }, { status: 503 }),
+      ),
+    );
+    renderWithProviders(<OverviewPage />);
+    expect(await screen.findByText("Couldn't load recommendations")).toBeInTheDocument();
+    expect(await screen.findByText("73.1%")).toBeInTheDocument();
+  });
+
+  it("shows an empty state when the API returns no recommendations", async () => {
+    server.use(
+      http.get(`${API_BASE_URL}/api/v1/recommendations`, () =>
+        HttpResponse.json(envelope({ scenario: "balanced", recommendations: [] })),
+      ),
+    );
+    renderWithProviders(<OverviewPage />);
+    expect(await screen.findByText("No recommendations available")).toBeInTheDocument();
+  });
+
+  it("surfaces the lowest-confidence recommendation as the featured preview, not just the first in order", async () => {
+    server.use(
+      http.get(`${API_BASE_URL}/api/v1/recommendations`, () =>
+        HttpResponse.json(
+          envelope({
+            scenario: "balanced",
+            recommendations: [
+              {
+                atc_class: "M01AB",
+                recommendation: "Standard balanced scenario policy applies for M01AB.",
+                evidence: ["Evidence for M01AB."],
+                assumptions: ["Assumption."],
+                expected_effect: "Effect.",
+                confidence: "medium-high",
+                limitations: ["Limitation."],
+              },
+              {
+                atc_class: "N05C",
+                recommendation: "N05C's high CV does not, by itself, justify large safety stock.",
+                evidence: ["Evidence for N05C."],
+                assumptions: ["Assumption."],
+                expected_effect: "Effect.",
+                confidence: "low",
+                limitations: ["Limitation."],
+              },
+            ],
+          }),
+        ),
+      ),
+    );
+    renderWithProviders(<OverviewPage />);
+    expect(await screen.findByText(/N05C's high CV does not/)).toBeInTheDocument();
+    expect(screen.queryByText(/Standard balanced scenario policy applies for M01AB/)).not.toBeInTheDocument();
+  });
+
+  it("adds a Next Actions item for low-confidence recommendations only when at least one exists", async () => {
+    server.use(
+      http.get(`${API_BASE_URL}/api/v1/recommendations`, () =>
+        HttpResponse.json(
+          envelope({
+            scenario: "balanced",
+            recommendations: [
+              {
+                atc_class: "N05C",
+                recommendation: "N05C's high CV does not, by itself, justify large safety stock.",
+                evidence: ["Evidence."],
+                assumptions: ["Assumption."],
+                expected_effect: "Effect.",
+                confidence: "low",
+                limitations: ["Limitation."],
+              },
+            ],
+          }),
+        ),
+      ),
+    );
+    renderWithProviders(<OverviewPage />);
+    const link = await screen.findByRole("link", { name: /Review 1 low-confidence recommendation/ });
+    expect(link).toHaveAttribute("href", "/recommendations");
+  });
+});
+
+describe("OverviewPage — accessibility (M7.9)", () => {
+  it("has exactly one h1 and gives every new preview section its own labelled landmark", async () => {
+    renderWithProviders(<OverviewPage />);
+    expect(await screen.findByRole("heading", { level: 1, name: "Executive Overview" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getByRole("heading", { level: 2, name: "Forecasting Intelligence" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Supply Planning & Optimization" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Recommendations Intelligence" })).toBeInTheDocument();
+  });
+
+  it("every drill-down link has a descriptive accessible name, not generic text", async () => {
+    renderWithProviders(<OverviewPage />);
+    // No link on the page should be an unlabelled "click here" / "more" —
+    // every new preview action names its own destination.
+    expect(await screen.findByRole("link", { name: "View forecasts →" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open Supply Planning →" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View all recommendations →" })).toBeInTheDocument();
   });
 });
