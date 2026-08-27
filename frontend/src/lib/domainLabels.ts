@@ -87,3 +87,23 @@ const SOLVER_STATUS: Record<string, { label: string; variant: BadgeVariant }> = 
 export function getSolverStatusDisplay(status: string): { label: string; variant: BadgeVariant } {
   return SOLVER_STATUS[status] ?? { label: status, variant: "neutral" };
 }
+
+/** app/optimization/recommendations.py's `_confidence_from_model_evidence`:
+ * confidence is a categorical string — "low" | "medium" | "medium-high"
+ * — NOT a numeric score, derived purely from which M4 model was
+ * selected and its own backtested WAPE. There is no "high" tier (the
+ * best a recommendation reaches is "medium-high"), so this is never
+ * formatted as a percentage/fraction — do not apply formatFraction or
+ * formatPercent to it. Confidence here is a genuinely positive
+ * attribute (a more reliable forecast backs a more reliable
+ * recommendation), unlike trend direction, so it does get a
+ * warning/neutral/success gradient. */
+const RECOMMENDATION_CONFIDENCE: Record<string, { label: string; variant: BadgeVariant }> = {
+  low: { label: "Low confidence", variant: "warning" },
+  medium: { label: "Medium confidence", variant: "neutral" },
+  "medium-high": { label: "Medium-high confidence", variant: "success" },
+};
+
+export function getRecommendationConfidenceDisplay(confidence: string): { label: string; variant: BadgeVariant } {
+  return RECOMMENDATION_CONFIDENCE[confidence] ?? { label: confidence, variant: "neutral" };
+}
