@@ -28,4 +28,9 @@ describe("SectionHeader", () => {
     render(<SectionHeader title="Trends" action={<button type="button">Export</button>} />);
     expect(screen.getByRole("button", { name: "Export" })).toBeInTheDocument();
   });
+
+  it("applies an id to the heading element so a landmark can reference it via aria-labelledby", () => {
+    render(<SectionHeader title="Trends" id="trends-heading" />);
+    expect(screen.getByRole("heading", { name: "Trends" })).toHaveAttribute("id", "trends-heading");
+  });
 });
