@@ -204,7 +204,7 @@ def main() -> None:
         "sum_of_per_class_metrics": summed_metrics,
     }
 
-    out_path = Path("data/model_registry/m4_backtest_results.json")
+    out_path = Path("data/reports/m4_backtest_results.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(results, indent=2, default=str), encoding="utf-8")
     print(f"\nFull results written to {out_path}")

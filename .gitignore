@@ -22,6 +22,7 @@ build/
 # ad hoc verification run) and any local SQLite/Postgres artifacts.
 backend/data/quality_reports/*.json
 backend/data/model_registry/*.json
+backend/data/reports/*.json
 *.db
 *.sqlite3
 .coverage
