@@ -1,0 +1,40 @@
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--font-card-title-size);
+  line-height: var(--font-card-title-line);
+  font-weight: var(--font-card-title-weight);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: var(--font-caption-size);
+  color: var(--color-text-muted);
+}
+
+.action {
+  flex-shrink: 0;
+}
+
+.chartArea {
+  width: 100%;
+  margin-top: var(--space-md);
+}
+
+.footer {
+  margin-top: var(--space-sm);
+}

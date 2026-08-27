@@ -89,7 +89,31 @@ with behavior-oriented (not snapshot) tests using React Testing Library.
 | **EmptyState** | icon + title + optional description/action, for a successful query that returned no rows. |
 | **ErrorState** | icon + title + message + optional retry, `role="alert"`. Message resolution goes through the existing `describeApiError()` (`frontend/src/api/client.ts`) — this component never renders a raw `Error.message` or backend stack trace. |
 | **SectionHeader** | eyebrow/title/description/action, configurable heading level (`as="h1"\|"h2"\|"h3"`) so pages control their own heading hierarchy. |
-| **MetricCard** | label/value/unit/trend/trendDirection/status/tooltip built on Card + StatusBadge + Tooltip. Renders exactly what it's given — it does not format numbers or include any example data. |
+| **MetricCard** | label/value/unit/trend/trendDirection/status/tooltip/`loading` built on Card + StatusBadge + Tooltip + Skeleton. `loading` swaps the value/trend/status area for a `Skeleton variant="metric"` so a page never needs a placeholder value while a query is in flight. Renders exactly what it's given — it does not format numbers or include any example data. |
+
+**Folder organization note:** the design brief's suggested layout splits
+`MetricCard` into `components/kpi/` and `StatusBadge` into
+`components/status/`. Both already existed under `components/ui/` from
+this milestone's first pass; moving them would be a pure file-move with
+no behavior change; kept in `components/ui/` instead, per "adapt to the
+existing architecture rather than blindly creating duplicates."
+
+## Chart foundation (`frontend/src/components/charts/`)
+
+Established ahead of M7.5/M7.6 actually rendering charts, so every
+chart page agrees on the same container, tooltip, and legend
+conventions from the start instead of drifting apart. **No chart,
+dataset, or business value is rendered here** — Recharts (already a
+dependency since M7.2) is not even imported by these files; they are
+pure layout/presentation conventions the M7.5+ chart components will
+build on.
+
+| File | Purpose |
+|---|---|
+| **ChartCard** | The container every chart renders inside: title/subtitle/action header (same visual language as SectionHeader), a fixed-height (`320px` default) chart area, optional legend footer. `children` is whatever's appropriate for the chart's current state — a real chart (M7.5+), or a `Skeleton variant="chart"` / `EmptyState` / `ErrorState` while loading, empty, or failed. |
+| **ChartTooltip** | A presentational component matching Recharts' `content={(props) => <ChartTooltip {...props} />}` signature — renders whatever `payload` Recharts passes at runtime. Deliberately not an ARIA live region (a hover tooltip fires on every pointer move; announcing that would spam screen readers). Chart accessibility beyond hover — e.g. an underlying data table — is an M7.5/M7.6 concern once a real chart exists. |
+| **ChartLegend** | A color swatch + text label per series (`items: {label, color, variant?}[]`) — label always carries the meaning, never color alone. |
+| **chartTheme.ts** | `CHART_SERIES_COLORS` (observed/forecast/interval), `CHART_STATUS_COLORS`, `CHART_CHROME` (grid/axis colors), `DEFAULT_CHART_HEIGHT`. Mirrors the chart-role tokens in `tokens.css` as literal hex values, since Recharts' `stroke`/`fill` props are plain SVG attributes and can't resolve `var(--...)` the way a CSS declaration can. Keep the two in sync by hand if `tokens.css` changes. |
 
 ## Layout architecture (`frontend/src/components/layout/`)
 

@@ -1,0 +1,32 @@
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.swatchLine {
+  width: 12px;
+  height: 3px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.swatchArea {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.label {
+  font-size: var(--font-caption-size);
+  color: var(--color-text-secondary);
+}

@@ -62,6 +62,14 @@ describe("AppShell", () => {
     expect(nav.className).not.toMatch(/open/);
   });
 
+  it("navigates to a different route when its sidebar link is clicked", async () => {
+    renderShell("/");
+    expect(screen.getByRole("main")).toHaveTextContent("Overview content");
+    await userEvent.click(screen.getByRole("link", { name: /Demand Intelligence/ }));
+    expect(screen.getByRole("main")).toHaveTextContent("Demand content");
+    expect(screen.getByRole("banner")).toHaveTextContent("Demand Intelligence");
+  });
+
   it("renders a skip link targeting the main content region", () => {
     renderShell("/");
     expect(screen.getByRole("link", { name: "Skip to main content" })).toHaveAttribute("href", "#main-content");

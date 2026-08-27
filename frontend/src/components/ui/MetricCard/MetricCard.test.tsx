@@ -43,4 +43,25 @@ describe("MetricCard", () => {
     expect(screen.queryByText(/2\.4M/)).not.toBeInTheDocument();
     expect(screen.queryByText(/\+4\.8%/)).not.toBeInTheDocument();
   });
+
+  it("renders a loading skeleton in place of the value when loading", () => {
+    render(<MetricCard label="Forecast MAPE" loading />);
+    expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument();
+    expect(screen.queryByText("Forecast MAPE")).toBeInTheDocument();
+  });
+
+  it("does not render a stale value, trend, or status badge while loading", () => {
+    render(<MetricCard label="Coverage" value="94%" trend="+2.1 pts" trendDirection="up" status="healthy" loading />);
+    expect(screen.queryByText("94%")).not.toBeInTheDocument();
+    expect(screen.queryByText("+2.1 pts")).not.toBeInTheDocument();
+    expect(screen.queryByText("Healthy")).not.toBeInTheDocument();
+  });
+
+  it("renders normally once loading is false", () => {
+    const { rerender } = render(<MetricCard label="Coverage" loading />);
+    expect(screen.getByRole("status")).toBeInTheDocument();
+    rerender(<MetricCard label="Coverage" value="94%" />);
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.getByText("94%")).toBeInTheDocument();
+  });
 });
