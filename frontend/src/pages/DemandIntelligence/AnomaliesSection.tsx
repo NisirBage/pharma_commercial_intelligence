@@ -17,7 +17,7 @@ import { useAnomalies } from "../../hooks/useAnomalies";
 import { getAnomalySeverityDisplay } from "../../lib/domainLabels";
 import { formatDate, formatDecimal, formatPercent } from "../../lib/format";
 import type { AnomalyItem, AnomalyMethod } from "../../types/api";
-import { ATC_SELECT_OPTIONS, toAtcClassParam } from "./atcOptions";
+import { ATC_SELECT_OPTIONS, toAtcClassParam } from "../../lib/atcOptions";
 import styles from "./DemandIntelligence.module.css";
 
 const METHOD_OPTIONS: { value: AnomalyMethod; label: string }[] = [

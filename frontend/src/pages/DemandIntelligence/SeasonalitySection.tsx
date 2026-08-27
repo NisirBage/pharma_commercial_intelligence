@@ -11,7 +11,7 @@ import { Select } from "../../components/ui/Select/Select";
 import { useSeasonality } from "../../hooks/useSeasonality";
 import { formatDecimal, formatPValue, formatStrength } from "../../lib/format";
 import type { DayOfWeekEffect, HourOfDayEffect } from "../../types/api";
-import { ATC_SELECT_OPTIONS, toAtcClassParam } from "./atcOptions";
+import { ATC_SELECT_OPTIONS, toAtcClassParam } from "../../lib/atcOptions";
 import styles from "./DemandIntelligence.module.css";
 
 // A fixed calendar-order display convention only — the backend's

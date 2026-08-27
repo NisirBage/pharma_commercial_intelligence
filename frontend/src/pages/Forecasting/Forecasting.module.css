@@ -1,0 +1,106 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-md);
+}
+
+.controlField {
+  min-width: 200px;
+  max-width: 260px;
+}
+
+.sectionStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+@media (max-width: 1023px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chartFooter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.diagnosticsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+@media (max-width: 1023px) {
+  .diagnosticsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .diagnosticsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.residualRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-sm);
+}
+
+.residualLabel {
+  font-size: var(--font-body-small-size);
+  color: var(--color-text-secondary);
+}
+
+.residualValue {
+  font-size: var(--font-body-small-size);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.interpretationNote {
+  font-size: var(--font-body-small-size);
+  color: var(--color-text-secondary);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+}
+
+.limitationsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding-left: var(--space-md);
+}
+
+.limitationsList li {
+  font-size: var(--font-caption-size);
+  color: var(--color-text-muted);
+}

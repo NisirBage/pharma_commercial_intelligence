@@ -51,3 +51,15 @@ const ANOMALY_SEVERITY: Record<string, { label: string; variant: BadgeVariant }>
 export function getAnomalySeverityDisplay(severity: string): { label: string; variant: BadgeVariant } {
   return ANOMALY_SEVERITY[severity] ?? { label: severity, variant: "neutral" };
 }
+
+/** app/services/forecast_service.py: `autocorrelation_detected` is
+ * `lb_pvalue < 0.05` on the Ljung-Box test of a forecast's backtest
+ * residuals — detected autocorrelation means the model is leaving
+ * predictable structure on the table (a real caveat, "warning"), not
+ * detected means the residuals look like white noise (a positive
+ * diagnostic sign, "success"). */
+export function getAutocorrelationDisplay(detected: boolean): { label: string; variant: BadgeVariant } {
+  return detected
+    ? { label: "Autocorrelation detected", variant: "warning" }
+    : { label: "No autocorrelation detected", variant: "success" };
+}

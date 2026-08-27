@@ -13,7 +13,7 @@ import { Skeleton } from "../../components/ui/Skeleton/Skeleton";
 import { useSalesTrends } from "../../hooks/useSalesTrends";
 import { formatCount, formatDate, formatDecimal } from "../../lib/format";
 import type { Grain } from "../../types/api";
-import { ATC_SELECT_OPTIONS, toAtcClassParam } from "./atcOptions";
+import { ATC_SELECT_OPTIONS, toAtcClassParam } from "../../lib/atcOptions";
 import styles from "./DemandIntelligence.module.css";
 
 const GRAIN_OPTIONS: { value: Grain; label: string }[] = [
