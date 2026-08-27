@@ -72,3 +72,20 @@ export function formatSlope(value: number | null | undefined): string {
   const sign = value > 0 ? "+" : "";
   return `${sign}${value.toFixed(1)} units/month`;
 }
+
+/** A 0-1 scale strength/statistic value (STL seasonal strength, CV) —
+ * these are small-magnitude and meaningfully differ in the 2nd/3rd
+ * decimal (e.g. weekly 0.234 vs. annual 0.553), so formatDecimal's
+ * fixed 1-decimal convention (built for demand figures) would blur
+ * them. Three decimals, unsigned. */
+export function formatStrength(value: number | null | undefined): string {
+  if (value === null || value === undefined) return NOT_AVAILABLE_COMPACT;
+  return value.toFixed(3);
+}
+
+/** A coefficient-of-variation (volatility_cv) — unitless ratio, two
+ * decimals is the convention already used for it on the Overview page. */
+export function formatCV(value: number | null | undefined): string {
+  if (value === null || value === undefined) return NOT_AVAILABLE_COMPACT;
+  return value.toFixed(2);
+}

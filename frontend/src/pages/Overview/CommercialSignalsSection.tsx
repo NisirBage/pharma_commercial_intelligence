@@ -8,7 +8,7 @@ import { ErrorState } from "../../components/ui/ErrorState/ErrorState";
 import { SectionHeader } from "../../components/ui/SectionHeader/SectionHeader";
 import { Skeleton } from "../../components/ui/Skeleton/Skeleton";
 import { getTrendDisplay } from "../../lib/domainLabels";
-import { formatPValue, formatSlope } from "../../lib/format";
+import { formatCV, formatPValue, formatSlope } from "../../lib/format";
 import type { AtcPerformance, AtcPerformanceResponse } from "../../types/api";
 import styles from "./Overview.module.css";
 
@@ -101,7 +101,7 @@ function SignalList({ classes }: { classes: AtcPerformance[] }) {
             <Badge variant="neutral">Highest variability</Badge>
           </div>
           <p className={styles.signalDetail}>
-            Coefficient of variation {mostVolatile.volatility_cv.toFixed(2)} — the highest among observed ATC classes.
+            Coefficient of variation {formatCV(mostVolatile.volatility_cv)} — the highest among observed ATC classes.
           </p>
           <Link to={`/demand/atc/${mostVolatile.atc_class}`} className={styles.signalLink}>
             Investigate {mostVolatile.atc_class} →

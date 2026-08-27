@@ -37,3 +37,17 @@ const DATA_QUALITY_STATUS: Record<string, StatusBadgeStatus> = {
 export function getDataQualityStatus(status: string): StatusBadgeStatus {
   return DATA_QUALITY_STATUS[status] ?? "pending";
 }
+
+/** app/schemas/anomalies.py: AnomalySeverity = "low" | "medium" | "high",
+ * assigned by app/analytics/anomalies.py's z-score/IQR magnitude
+ * thresholds — severity (unlike trend direction) is a legitimate
+ * escalating-urgency scale, so it does get success/warning/danger. */
+const ANOMALY_SEVERITY: Record<string, { label: string; variant: BadgeVariant }> = {
+  low: { label: "Low", variant: "neutral" },
+  medium: { label: "Medium", variant: "warning" },
+  high: { label: "High", variant: "danger" },
+};
+
+export function getAnomalySeverityDisplay(severity: string): { label: string; variant: BadgeVariant } {
+  return ANOMALY_SEVERITY[severity] ?? { label: severity, variant: "neutral" };
+}

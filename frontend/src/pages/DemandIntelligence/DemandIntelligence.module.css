@@ -1,0 +1,120 @@
+/**
+ * Shared styles for the whole Demand Intelligence page — index.tsx and
+ * every tab section import this same module, since they're all
+ * page-local views composed from the same filter-bar/summary-grid
+ * patterns. Component-specific one-offs live inline in this file too
+ * (CSS Modules scope by file, not by importing component).
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.tabPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.tabPanel:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ---------------------------------------------------------------
+ * Filter bar — ATC/grain/method/severity selects + date range,
+ * shared layout across Trends/Seasonality/Anomalies.
+ * ------------------------------------------------------------- */
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-md);
+}
+
+.filterField {
+  min-width: 160px;
+  flex: 1 1 160px;
+  max-width: 240px;
+}
+
+/* ---------------------------------------------------------------
+ * Summary metric rows
+ * ------------------------------------------------------------- */
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+@media (max-width: 1023px) {
+  .summaryGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.summaryGridNarrow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+  max-width: 480px;
+}
+
+@media (max-width: 480px) {
+  .summaryGridNarrow {
+    grid-template-columns: 1fr;
+    max-width: none;
+  }
+}
+
+.summaryCaption {
+  font-size: var(--font-caption-size);
+  color: var(--color-text-muted);
+}
+
+.sectionStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* ---------------------------------------------------------------
+ * ATC Analysis / Anomalies table cells
+ * ------------------------------------------------------------- */
+.cellMono {
+  font-family: var(--font-family-mono);
+}
+
+.cellWithDetail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cellDetail {
+  font-size: var(--font-caption-size);
+  color: var(--color-text-muted);
+}
+
+.directionCell {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+/* ---------------------------------------------------------------
+ * Seasonality reason / unavailable notes
+ * ------------------------------------------------------------- */
+.unavailableNote {
+  font-size: var(--font-body-small-size);
+  color: var(--color-text-muted);
+}
