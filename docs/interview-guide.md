@@ -8,6 +8,183 @@ comes from, don't say it in the interview either.
 
 ---
 
+## M6 — FastAPI Backend
+
+### Why FastAPI?
+
+Native Pydantic integration (request/response validation with zero
+boilerplate — every schema in `app/schemas/` doubles as both validation
+and OpenAPI documentation), automatic interactive docs (`/docs`, `/redoc`
+— generated from the same schemas, never hand-written and drifting out of
+sync), and it's the natural fit for a Python-native project sitting on
+top of pandas/scikit-learn/statsmodels/OR-Tools services that are
+themselves synchronous — FastAPI runs sync route handlers in a
+threadpool automatically, so there was no need to introduce async
+SQLAlchemy or rewrite M2-M5's synchronous code to get a modern async
+framework's other benefits (routing, dependency injection, docs).
+
+### Why REST?
+
+The domain maps cleanly onto resources (a forecast for a class, a
+scenario's optimization run, a set of recommendations) with a small,
+fixed set of operations per resource (mostly read, one computation
+trigger) — there's no requirement here for GraphQL's flexible field
+selection or gRPC's streaming/performance profile. REST plus OpenAPI docs
+is also the most legible choice for a frontend developer who hasn't read
+the backend (M6 Sec. 28's own stated goal).
+
+### Why API versioning (`/api/v1`)?
+
+Because M6-M9 (frontend, further analytics) will inevitably need
+backward-incompatible schema changes at some point, and retrofitting
+versioning after clients exist is far more disruptive than starting with
+it. `/health` is deliberately left unversioned — a liveness probe's
+contract (used by orchestration tooling, not application clients) is
+expected to be far more stable than a business-data contract.
+
+### Why Pydantic?
+
+It's what makes "keep routes thin" (below) actually achievable: input
+validation (enums, numeric bounds, date formats) is declared once on the
+schema and enforced automatically before a route handler ever runs, and
+the same schema generates the OpenAPI documentation a frontend developer
+reads. `app/schemas/common.SafeFloat` is a concrete example of Pydantic
+doing real work — a `BeforeValidator` that converts any NaN/Infinity
+value (a real possibility given how much floating-point statistics flows
+through M3/M4/M5) into `None` before it can ever reach a JSON response.
+
+### Why keep routes thin?
+
+So the actual business logic (M3/M4/M5) is testable, reusable, and
+readable independent of the HTTP layer. Every route in
+`app/api/routes/*.py` is 1-5 lines: parse the request, call exactly one
+service function, wrap the result. Compare `app/api/routes/optimization.py`
+(thin) against `app/services/optimization_service.py` (the actual
+translation/validation logic) — the separation is the point.
+
+### How did you separate business logic from HTTP logic?
+
+Three layers, one direction of dependency: **routes** (`app/api/routes/`)
+know about HTTP (status codes, query/path parameters) and call
+**services** (`app/services/`); services know about the **domain**
+(`app/analytics`, `app/forecasting`, `app/optimization` — M3/M4/M5) and
+translate between HTTP-shaped requests/responses and domain objects;
+the domain layer knows nothing about HTTP at all — it was built in M3-M5,
+entirely before any API existed, and M6 changed none of its methodology
+(only one small additive field, `DemandInput.fold_results`, was added to
+expose data M5 had already computed but discarded).
+
+### How do you prevent expensive forecasting work on every request?
+
+`app/services/cache.py` — see docs/api-design.md, "Caching strategy," in
+full. Short version: `functools.lru_cache` wraps the two expensive
+computations (the canonical frame, ~1-2s; per-class demand inputs, which
+rerun an M4 backtest to recover residuals, ~7-9s total) so they run once
+per process, not once per request — measured: a cold `/forecast/{atc_class}`
+call takes ~8.9s, every subsequent call ~12ms (docs/api-design.md,
+"Performance"). This is explicitly documented as an in-process,
+process-lifetime cache — a real simplification versus a production Redis/
+materialized-table cache with explicit pipeline-triggered invalidation.
+
+### How would you scale this API?
+
+Horizontally, the in-process `lru_cache` is the first thing that would
+need to change — multiple worker processes/pods would each pay the cold-
+start cost independently and could serve inconsistent data if the
+underlying M4/M5 pipeline reran between workers refreshing. The fix is
+exactly what docs/api-design.md's caching section describes: move the
+cache to Redis (or a materialized table refreshed by the pipeline job) so
+all workers share one warm cache and one invalidation signal. Vertically,
+none of the current endpoints are CPU-bound in a way that needs more than
+one core per request — the LP solve is milliseconds; the expensive part
+is I/O (reading CSVs / re-running a backtest), which caching already
+solves.
+
+### How would you introduce authentication?
+
+There's no real user model or write-heavy surface yet — every endpoint
+is either a read of computed analytics or a stateless optimization
+computation with no side effects. If real users needed to authenticate
+(e.g. a real planner's saved scenarios, or role-based access to different
+ATC classes), I'd add OAuth2/JWT bearer-token auth via FastAPI's built-in
+`Security`/`Depends` mechanism, verified in a dependency injected into
+routes that need it — not a global middleware, so read-only public
+endpoints (if any remained public) wouldn't pay the auth-check cost.
+Building this now, with no real requirement driving it, would be exactly
+the "auth for appearance" M6 explicitly warns against.
+
+### How would you deploy this?
+
+`backend/Dockerfile` packages the API (`uvicorn app.main:app`) — see
+docs/api-design.md, "Deployment considerations," for why a full
+docker-compose stack (API + Postgres) wasn't built: the API's primary
+data path is CSV-derived, not database-backed, in this project's current
+state. A real deployment would run the container behind a reverse proxy/
+load balancer (multiple replicas once the caching layer is externalized —
+see "How would you scale this API?"), with `CORS_ALLOWED_ORIGINS` set to
+the real frontend's production origin (never `*`) and `ENVIRONMENT=production`
+enabling the stricter config-validation paths already present in
+`app/core/config.py`.
+
+### How would you handle concurrent optimization requests?
+
+Today, safely by construction: `POST /api/v1/optimization/run` has no
+shared mutable state — it reads from the cache (read-only after the
+first warm-up) and returns a freshly-computed result every call, so
+concurrent requests don't interfere with each other. The one real
+concurrency risk is the cache's *cold-start* window: if two requests
+race to populate `lru_cache` simultaneously before it's warm, both would
+redundantly do the expensive work (not incorrect, just wasteful) — an
+`asyncio.Lock`/`threading.Lock` around the cold-start path would close
+that gap; not added because it only matters for a handful of requests
+during the very first moments after a process starts.
+
+### How would you cache forecasts?
+
+They already are — see "How do you prevent expensive forecasting work on
+every request?" above. To make forecasts cacheable ACROSS process
+restarts (not just within one process's lifetime), the next step would be
+persisting `ForecastOutput` objects (the same structure `GET /api/v1/forecast/{atc_class}`
+already returns) to a table or Redis key per ATC class, written once by
+the M4 pipeline job rather than computed lazily by the first API request.
+
+### How would you handle database connection failures?
+
+They're already handled at the one place the database is used:
+`GET /health`'s `check_database_connection()` (`app/api/deps.py`) catches
+any connection exception and reports `"unreachable"` rather than raising
+— the endpoint still returns 200 (this API's primary data path doesn't
+need a database at all, so a missing one doesn't make the API itself
+unhealthy). If a future endpoint DID require the database for a write
+path, I'd raise `app.api.errors.ServiceUnavailableError` (503) from that
+endpoint specifically, using the same `get_db()` dependency — not a
+global "is the DB up" gate in front of every route.
+
+### Why isn't the API directly exposing SQL?
+
+Because a REST API's job is to expose business capabilities (a forecast,
+a recommendation, an optimization run), not a query interface — letting
+a client construct arbitrary queries is both a SQL-injection surface and
+a leak of internal schema details the frontend shouldn't need to know
+(M6 Sec. 4: "expose business capabilities rather than internal
+implementation details"). Every endpoint here calls a specific, named
+service function with a specific, validated request shape.
+
+### How would you monitor API performance?
+
+Today: the request-duration/endpoint log line every request produces
+(`app/api/middleware.py`, `X-Request-ID` header + a structured log
+entry) is the whole story — appropriate for a single-instance portfolio
+deployment, and deliberately NOT Prometheus/Grafana/an APM agent (M6
+Sec. 35: no observability stack for resume keywords without a real need
+for one). At real production scale, the natural next step is exporting
+the same per-request duration/status/endpoint data this middleware
+already computes to a metrics backend (e.g. Prometheus via
+`prometheus-fastapi-instrumentator`) rather than inventing a new
+observability model — the instrumentation point already exists.
+
+---
+
 ## M5 — Optimization
 
 ### Why did you use optimization rather than ML?

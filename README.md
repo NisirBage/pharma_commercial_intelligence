@@ -19,8 +19,8 @@ reasoning (approved: Option A).
 | 2 | Data model & ETL | **Complete** — see [docs/data-model.md](docs/data-model.md) / [docs/etl.md](docs/etl.md) / [docs/data-quality-decisions.md](docs/data-quality-decisions.md) |
 | 3 | Demand intelligence & exploratory analytics | **Complete** — see [docs/analytics-methodology.md](docs/analytics-methodology.md) / [docs/business-insights.md](docs/business-insights.md) |
 | 4 | Demand forecasting | **Complete** — see [docs/forecasting-methodology.md](docs/forecasting-methodology.md) / [docs/model-selection.md](docs/model-selection.md) / [docs/forecasting-leakage-audit.md](docs/forecasting-leakage-audit.md) / [docs/forecasting-insights.md](docs/forecasting-insights.md) |
-| 5 | Inventory & supply planning optimization | **Complete** — see [docs/optimization-methodology.md](docs/optimization-methodology.md) / [docs/planning-assumptions.md](docs/planning-assumptions.md) / [docs/optimization-insights.md](docs/optimization-insights.md) / [docs/data-gap-analysis.md](docs/data-gap-analysis.md) / [docs/interview-guide.md](docs/interview-guide.md) |
-| 6 | Backend API | Not started |
+| 5 | Inventory & supply planning optimization | **Complete** — see [docs/optimization-methodology.md](docs/optimization-methodology.md) / [docs/planning-assumptions.md](docs/planning-assumptions.md) / [docs/optimization-insights.md](docs/optimization-insights.md) / [docs/data-gap-analysis.md](docs/data-gap-analysis.md) |
+| 6 | Backend API (FastAPI) | **Complete** — see [docs/api-design.md](docs/api-design.md) / [docs/interview-guide.md](docs/interview-guide.md) |
 | 7 | Dashboard | Not started |
 | 8 | Testing & CI/CD hardening | Not started |
 
@@ -48,11 +48,66 @@ backend/app/etl/         Extract / validate / transform / load / quality-report 
 backend/app/analytics/   KPIs, trends, seasonality, ATC-class analysis, volatility, anomalies, reconciliation
 backend/app/forecasting/ Datasets, features, baselines, ETS/ML models, backtesting, metrics, selection, diagnostics, predictions, model registry
 backend/app/optimization/ Demand input (reuses M4), safety stock, reorder point, LP allocation (OR-Tools), scenarios, sensitivity, recommendations
+backend/app/api/         FastAPI routes, dependency injection, exception handlers, request-logging middleware
+backend/app/schemas/     Pydantic request/response models (also the OpenAPI source of truth)
+backend/app/services/    Request/response translation, input validation, and caching over M3/M4/M5
 backend/app/db/migrations/  Alembic migrations
-backend/tests/           pytest — unit (pure logic) + integration (SQLite-backed load tests)
+backend/tests/           pytest — unit (pure logic) + integration (SQLite-backed load tests, real-data API tests) + api (FastAPI TestClient, synthetic fixtures)
 ```
 
-Frontend and API scaffolding land in Milestone 6+.
+Frontend scaffolding lands in Milestone 7+.
+
+## API
+
+```
+Frontend
+   |
+FastAPI (backend/app/main.py)
+   |
+Service layer (backend/app/services/)
+   |
+Analytics / Forecasting / Optimization (M3 / M4 / M5)
+   |
+PostgreSQL (optional) / canonical CSV-derived data (M2)
+```
+
+Run locally (needs `data/raw/*.csv` from `scripts/download_data.py`, and
+ideally `backend/data/model_registry/*.json` from
+`scripts/run_m4_backtest.py` for the forecast/optimization endpoints):
+
+```bash
+cd backend
+uvicorn app.main:app --reload
+```
+
+Interactive docs: `http://localhost:8000/docs` (Swagger) or
+`http://localhost:8000/redoc`. Full architecture, caching strategy, and
+security review: [docs/api-design.md](docs/api-design.md).
+
+Sample request/response:
+
+```bash
+curl http://localhost:8000/api/v1/kpis/summary
+```
+```json
+{
+  "data": {
+    "total_demand": 127595.5,
+    "average_daily_demand": 60.59,
+    "peak_daily_demand": 198.95,
+    "dominant_atc_class": "N02BE",
+    "dominant_atc_share_pct": 49.38,
+    "period": {"start": "2014-01-02", "end": "2019-10-08"}
+  },
+  "metadata": {"generated_at": "...", "source": "M3 analytics"}
+}
+```
+
+```bash
+curl -X POST http://localhost:8000/api/v1/optimization/run \
+  -H "Content-Type: application/json" \
+  -d '{"scenario": "balanced"}'
+```
 
 ## Reproducing the data + pipeline locally
 
@@ -65,13 +120,14 @@ python scripts/download_data.py
 python scripts/inspect_schema.py
 python scripts/investigate_hour_column.py   # re-verify the Hour-column finding
 
-# Backend / ETL
+# Backend / ETL / API
 cd backend
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-pytest                                       # 212 tests (see docs/etl.md, docs/forecasting-methodology.md, docs/optimization-methodology.md)
+pytest                                       # 277 tests (see docs/etl.md, docs/forecasting-methodology.md, docs/optimization-methodology.md, docs/api-design.md)
 # python -m app.etl.run_pipeline             # needs a reachable Postgres — see app/core/config.py
-python scripts/run_m4_backtest.py            # reproduces every forecasting number in docs/
+python scripts/run_m4_backtest.py            # reproduces every forecasting number in docs/; also populates the model registry the API's forecast/optimization endpoints read
 python scripts/run_m5_optimization.py        # reproduces every optimization number in docs/ (needs run_m4_backtest.py first)
+uvicorn app.main:app --reload                # http://localhost:8000/docs
 ```

@@ -1,3 +1,13 @@
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+# B008 ("function call in argument default") is a false positive for
+# FastAPI's Query()/Depends() default-argument pattern -- that IS the
+# framework's documented, required idiom for declaring query-parameter
+# metadata, not a real mutable-default bug.
+ignore = ["B008"]

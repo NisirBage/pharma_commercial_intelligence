@@ -20,7 +20,7 @@ uncertainty from the existing forecasting package" (M5 Sec. 3) means in
 code.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
@@ -64,6 +64,13 @@ class DemandInput:
     residual_std_by_step: list[float]  # length 14 — std of the selected model's out-of-fold error AT each horizon step
     fold_cumulative_errors: dict[int, list[float]]  # lead_time_days L -> the 6 folds' L-day cumulative forecast errors
     forecast_output: ForecastOutput  # M4's own output object, unmodified — see the module docstring
+    fold_results: list[dict] = field(default_factory=list)
+    """The raw per-fold backtest results (each a dict with an "residuals"
+    list, among other keys — see app.forecasting.backtesting.run_backtest)
+    for the selected model, kept for reuse by app.forecasting.diagnostics
+    (M6's forecast-diagnostics endpoint) without re-running the backtest a
+    third time. Added in M6 — purely additive (a defaulted field), so
+    every M5 caller/test that predates it is unaffected."""
 
 
 def _selected_model_record(entity: str, registry_dir: Path) -> dict:
@@ -117,6 +124,7 @@ def build_demand_input(entity: str, prep: SeriesPrepResult, registry_dir: Path =
         residual_std_by_step=residual_std_by_step,
         fold_cumulative_errors=fold_cumulative_errors,
         forecast_output=forecast_output,
+        fold_results=fold_results,
     )
 
 

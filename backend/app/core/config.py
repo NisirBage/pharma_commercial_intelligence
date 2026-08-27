@@ -29,6 +29,19 @@ class Settings(BaseSettings):
 
     kaggle_dataset_id: str = "milanzdravkovic/pharma-sales-data"
 
+    # --- API (M6) ---
+    app_name: str = "Pharma Commercial Intelligence & Supply Planning API"
+    api_version: str = "1.0.0"
+    environment: str = "development"  # development | staging | production
+    log_level: str = "INFO"
+    # Comma-separated in the environment (e.g. CORS_ALLOWED_ORIGINS="http://localhost:5173,https://app.example.com");
+    # defaults to the Vite dev-server origin only — never "*" (see docs/api-design.md, "CORS").
+    cors_allowed_origins: str = "http://localhost:5173"
+
+    @property
+    def cors_allowed_origins_list(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_allowed_origins.split(",") if origin.strip()]
+
     @property
     def sqlalchemy_database_url(self) -> str:
         if self.database_url:
