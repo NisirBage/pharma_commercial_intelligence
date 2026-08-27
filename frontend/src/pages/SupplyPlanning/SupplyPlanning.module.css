@@ -1,0 +1,158 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.sectionStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* ---------------------------------------------------------------
+ * Scenario / planning controls
+ * ------------------------------------------------------------- */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-md);
+}
+
+.controlField {
+  min-width: 200px;
+  max-width: 280px;
+}
+
+.scenarioRationale {
+  flex-basis: 100%;
+  font-size: var(--font-body-small-size);
+  color: var(--color-text-secondary);
+  max-width: 60ch;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 160px;
+  max-width: 220px;
+}
+
+.fieldLabel {
+  font-size: var(--font-body-small-size);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.fieldUnit {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.numberInput {
+  height: 36px;
+  padding: 0 var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-body-size);
+}
+
+.numberInput:hover {
+  border-color: var(--color-border-strong);
+}
+
+.numberInputError {
+  border-color: var(--color-danger);
+}
+
+.fieldHelper {
+  font-size: var(--font-caption-size);
+  color: var(--color-text-muted);
+}
+
+.fieldError {
+  font-size: var(--font-caption-size);
+  color: var(--color-danger);
+}
+
+.runRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.staleNote {
+  font-size: var(--font-body-small-size);
+  color: var(--color-warning);
+  background: var(--color-warning-muted);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+}
+
+/* ---------------------------------------------------------------
+ * Summary / KPIs
+ * ------------------------------------------------------------- */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+@media (max-width: 1023px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-sm);
+}
+
+.statusLabel {
+  font-size: var(--font-body-small-size);
+  color: var(--color-text-secondary);
+}
+
+.warningsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding-left: var(--space-md);
+}
+
+.warningsList li {
+  font-size: var(--font-body-small-size);
+  color: var(--color-text-primary);
+}
+
+/* ---------------------------------------------------------------
+ * Sensitivity
+ * ------------------------------------------------------------- */
+.sensitivityStats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+  max-width: 480px;
+}
+
+@media (max-width: 480px) {
+  .sensitivityStats {
+    grid-template-columns: 1fr;
+    max-width: none;
+  }
+}

@@ -17,6 +17,7 @@ const NOT_AVAILABLE_COMPACT = "—";
 
 const countFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
 const decimalFormatter = new Intl.NumberFormat("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const rawNumberFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 3 });
 const dateFormatter = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "short", day: "numeric" });
 
 /** Large demand figures — thousands separators, whole units. */
@@ -30,6 +31,21 @@ export function formatCount(value: number | null | undefined, compact = false): 
 export function formatDecimal(value: number | null | undefined, compact = false): string {
   if (value === null || value === undefined) return compact ? NOT_AVAILABLE_COMPACT : NOT_AVAILABLE;
   return decimalFormatter.format(value);
+}
+
+/** A number whose scale/precision isn't known ahead of time — e.g. a
+ * generic self-documenting "assumptions" table mixing days (7), a
+ * fraction (0.95), and unitless weights (1.0, 4.0, 0.0) in one column.
+ * formatDecimal's forced single decimal is wrong here (it turns 0.95
+ * into a misleading "1.0" — found via real-backend verification on
+ * the Supply Planning page's assumptions table); this shows each
+ * number at its own natural precision instead, capped at 3 decimals
+ * only to guard against floating-point noise. Prefer a more specific
+ * formatter (formatDecimal/formatFraction/formatCount/...) whenever the
+ * value's convention is actually known. */
+export function formatNumber(value: number | null | undefined): string {
+  if (value === null || value === undefined) return NOT_AVAILABLE_COMPACT;
+  return rawNumberFormatter.format(value);
 }
 
 /** A share/contribution/CR3 percentage already expressed 0-100 by the API. */
@@ -88,4 +104,17 @@ export function formatStrength(value: number | null | undefined): string {
 export function formatCV(value: number | null | undefined): string {
   if (value === null || value === undefined) return NOT_AVAILABLE_COMPACT;
   return value.toFixed(2);
+}
+
+/** A true 0-1 fraction (service_level / service_level_target from
+ * backend/app/schemas/optimization.py — Pydantic `gt=0, lt=1`,
+ * documented in docs/planning-assumptions.md as "0.95 (95%)"). This is
+ * NOT the same convention as formatPercent's fields (contribution_pct,
+ * wape, improvement_pct), which the API already expresses 0-100 — that
+ * distinction is the whole reason this is a separate helper rather than
+ * a silent *100 inside formatPercent, per M7.7's explicit warning
+ * against conflating the two conventions. */
+export function formatFraction(value: number | null | undefined, digits = 0): string {
+  if (value === null || value === undefined) return NOT_AVAILABLE_COMPACT;
+  return `${(value * 100).toFixed(digits)}%`;
 }

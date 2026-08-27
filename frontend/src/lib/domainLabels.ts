@@ -63,3 +63,27 @@ export function getAutocorrelationDisplay(detected: boolean): { label: string; v
     ? { label: "Autocorrelation detected", variant: "warning" }
     : { label: "No autocorrelation detected", variant: "success" };
 }
+
+/** app/optimization/allocation_optimizer.py's `_STATUS_NAMES`: an LP
+ * solver status is "optimal" | "feasible" | "infeasible" | "unbounded" |
+ * "unknown", or "heuristic (no solver)" for the closed-form baseline
+ * policy (which never calls a solver at all — not a failure state).
+ * POST /optimization/run already rejects a genuinely infeasible
+ * *optimized* result with an HTTP error before the frontend ever sees
+ * this field for that case; this mapping is for the statuses that CAN
+ * legitimately appear in a successful response (both allocations'
+ * `solver_status`, always one of "optimal"/"feasible"/"heuristic..."
+ * in that case — the others are shown only if a request somehow still
+ * carries one, e.g. inside a warning about the baseline). */
+const SOLVER_STATUS: Record<string, { label: string; variant: BadgeVariant }> = {
+  optimal: { label: "Optimal", variant: "success" },
+  feasible: { label: "Feasible", variant: "success" },
+  "heuristic (no solver)": { label: "Closed-form (no solver needed)", variant: "neutral" },
+  infeasible: { label: "Infeasible", variant: "danger" },
+  unbounded: { label: "Unbounded", variant: "danger" },
+  unknown: { label: "Unknown", variant: "warning" },
+};
+
+export function getSolverStatusDisplay(status: string): { label: string; variant: BadgeVariant } {
+  return SOLVER_STATUS[status] ?? { label: status, variant: "neutral" };
+}

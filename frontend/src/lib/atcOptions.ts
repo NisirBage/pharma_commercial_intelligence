@@ -20,3 +20,11 @@ export const ATC_SELECT_OPTIONS = [
 export function toAtcClassParam(selectValue: string): string | undefined {
   return selectValue === "" ? undefined : selectValue;
 }
+
+/** Just the 8 classes, no "Aggregate" option — for endpoints where
+ * `atc_class` is a required parameter with no aggregate concept at all
+ * (e.g. GET /api/v1/optimization/sensitivity; see
+ * backend/app/api/routes/optimization.py's `atc_class: str = Query(...)`,
+ * no default). Reusing ATC_SELECT_OPTIONS here would offer a value the
+ * endpoint would 400/404 on. */
+export const ATC_ONLY_OPTIONS = ATC_CLASSES.map((atcClass) => ({ value: atcClass, label: atcClass }));
