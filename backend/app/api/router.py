@@ -14,6 +14,7 @@ from app.api.routes import (
     optimization,
     recommendations,
     sales,
+    seasonality,
 )
 
 api_router = APIRouter()
@@ -23,6 +24,7 @@ v1_router = APIRouter(prefix="/api/v1")
 v1_router.include_router(kpis.router)
 v1_router.include_router(sales.router)
 v1_router.include_router(analytics.router)
+v1_router.include_router(seasonality.router)
 v1_router.include_router(anomalies.router)
 v1_router.include_router(forecasts.router)
 v1_router.include_router(optimization.router)

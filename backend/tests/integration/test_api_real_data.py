@@ -57,6 +57,17 @@ def test_aggregate_forecast_against_real_registry(real_client):
     assert response.json()["data"]["model"] == "ets"  # M4's actual documented selection for ALL
 
 
+def test_seasonality_against_real_data_matches_m3_report(real_client):
+    response = real_client.get("/api/v1/analytics/seasonality")
+    assert response.status_code == 200
+    data = response.json()["data"]
+    # docs/business-insights.md documents weekly strength 0.234, annual 0.553 (aggregate).
+    assert 0.20 < data["weekly_seasonal_strength"]["strength"] < 0.27
+    assert 0.50 < data["annual_seasonal_strength"]["strength"] < 0.60
+    assert data["day_of_week_effect"]["significant"] is True
+    assert data["hour_of_day_effect"]["significant"] is True
+
+
 def test_optimization_run_against_real_data_matches_m5_report(real_client):
     response = real_client.post("/api/v1/optimization/run", json={"scenario": "balanced"})
     assert response.status_code == 200

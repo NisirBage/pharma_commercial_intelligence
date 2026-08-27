@@ -24,6 +24,7 @@ def test_all_endpoints_produce_valid_strict_json(client):
         ("GET", "/api/v1/sales/trends"),
         ("GET", "/api/v1/analytics/atc"),
         ("GET", "/api/v1/analytics/anomalies"),
+        ("GET", "/api/v1/analytics/seasonality"),
         ("GET", "/api/v1/forecast/N02BE"),
         ("GET", "/api/v1/forecast/aggregate"),
         ("GET", "/api/v1/forecast/N02BE/diagnostics"),
