@@ -1,6 +1,6 @@
 # Pharmaceutical Demand Intelligence & Supply Planning Platform
 
-Portfolio project (ZS BTSA interview prep) demonstrating the full path from
+Portfolio project demonstrating the full path from
 business problem → requirements → data → data model → analytics/ML →
 optimization → API → dashboard → testing, on a real dataset.
 
