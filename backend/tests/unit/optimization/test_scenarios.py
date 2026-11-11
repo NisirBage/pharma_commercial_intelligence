@@ -1,4 +1,3 @@
-import pytest
 
 from app.optimization.scenarios import SCENARIOS, run_all_scenarios, run_scenario
 from tests.unit.optimization.helpers import make_demand_input

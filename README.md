@@ -21,8 +21,8 @@ reasoning (approved: Option A).
 | 4 | Demand forecasting | **Complete** — see [docs/forecasting-methodology.md](docs/forecasting-methodology.md) / [docs/model-selection.md](docs/model-selection.md) / [docs/forecasting-leakage-audit.md](docs/forecasting-leakage-audit.md) / [docs/forecasting-insights.md](docs/forecasting-insights.md) |
 | 5 | Inventory & supply planning optimization | **Complete** — see [docs/optimization-methodology.md](docs/optimization-methodology.md) / [docs/planning-assumptions.md](docs/planning-assumptions.md) / [docs/optimization-insights.md](docs/optimization-insights.md) / [docs/data-gap-analysis.md](docs/data-gap-analysis.md) |
 | 6 | Backend API (FastAPI) | **Complete** — see [docs/api-design.md](docs/api-design.md) / [docs/interview-guide.md](docs/interview-guide.md) |
-| 7 | Dashboard | Not started |
-| 8 | Testing & CI/CD hardening | Not started |
+| 7 | Dashboard (React 19 + TypeScript + Vite) | **Complete** — overview, demand intelligence, forecasting, supply planning, recommendations, per-ATC detail and data-quality pages under `frontend/src/pages/` |
+| 8 | Testing & CI/CD hardening | **In progress** — backend pytest suite (unit, integration, API) and frontend Vitest suite; GitHub Actions CI runs lint, tests and build on every push. No deployment pipeline yet. |
 
 ## Dataset
 
@@ -55,7 +55,7 @@ backend/app/db/migrations/  Alembic migrations
 backend/tests/           pytest — unit (pure logic) + integration (SQLite-backed load tests, real-data API tests) + api (FastAPI TestClient, synthetic fixtures)
 ```
 
-Frontend scaffolding lands in Milestone 7+.
+The React dashboard lives in `frontend/` (see Milestone 7).
 
 ## API
 

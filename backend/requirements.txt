@@ -10,3 +10,6 @@ pydantic
 pydantic-settings
 pytest
 pytest-cov
+fastapi>=0.162
+uvicorn
+httpx
